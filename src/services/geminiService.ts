@@ -1,37 +1,12 @@
 import { GoogleGenAI, Type } from "@google/genai";
+import { ScanMode, ScanResult, ReportCard } from "../types";
+
+export { ScanMode };
+export type { ScanResult, ReportCard };
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
 
-export enum ScanMode {
-  SAVAGE = "savage",
-  SOFT = "soft",
-  TOXIC = "toxic"
-}
-
-export interface ReportCard {
-  title: string;
-  value: string;
-  emoji: string;
-  color: string;
-}
-
-export interface ScanResult {
-  openingReaction: string;
-  analysis: string;
-  savageCommentary: string;
-  toxicityScore: number;
-  katneKaChance: {
-    percentage: number;
-    message: string;
-  };
-  verdict: string;
-  reportCards: ReportCard[];
-  motivationalMessage: string;
-}
-
 export async function scanRelationship(situation: string, mode: ScanMode, partnerName: string, partnerGender: string, userGender: string): Promise<ScanResult> {
-  const modelName = "gemini-3-flash-preview";
-  
   const systemInstruction = `
     You are the "Neural Relationship Postmortem Engine" — a savage, meme-obsessed, highly observant Gen-Z relationship analyst who speaks pure, natural, and relatable "Desi Hindi" (Hinglish/Slang). 
     Your goal is to perform a surgical analysis on the user's relationship with "${partnerName}" (${partnerGender}).
@@ -112,7 +87,7 @@ export async function scanRelationship(situation: string, mode: ScanMode, partne
 
   try {
     const response = await ai.models.generateContent({
-      model: modelName,
+      model: "gemini-3-flash-preview",
       contents: `Partner Name: ${partnerName}\nGender: ${partnerGender}\nSituation: ${situation}\nMode: ${mode}`,
       config: {
         systemInstruction,
@@ -178,3 +153,4 @@ export async function scanRelationship(situation: string, mode: ScanMode, partne
     };
   }
 }
+
