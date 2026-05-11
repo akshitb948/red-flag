@@ -185,7 +185,7 @@ const ReportCard = ({ card, index }: { card: ReportCardType; index: number; key?
   </motion.div>
 );
 
-const ScanResultView = ({ result, onReset }: { result: ScanResult; onReset: () => void; key?: string }) => {
+const ScanResultView = ({ result, onReset, partnerName, partnerGender }: { result: ScanResult; onReset: () => void; partnerName: string; partnerGender: string; key?: string }) => {
   const resultRef = useRef<HTMLDivElement>(null);
   const [revealIndex, setRevealIndex] = useState(0);
 
@@ -196,16 +196,36 @@ const ScanResultView = ({ result, onReset }: { result: ScanResult; onReset: () =
     return () => clearInterval(timer);
   }, [result]);
 
+  const getAlias = () => {
+    if (partnerGender === 'Female') return 'Meri Bali';
+    if (partnerGender === 'Male') return 'Mere Bala';
+    return 'Mera Partner';
+  };
+
+  const sanitizeText = (text: string) => {
+    if (!partnerName) return text;
+    // escape regex special characters in name
+    const escapedName = partnerName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(escapedName, 'gi');
+    return text.replace(regex, getAlias());
+  };
+
   const handleShareWhatsApp = () => {
-    const shareText = `Bhai/Behen, mera relationship scan ka result aa gaya! 🚩💀\n\nVerdict: ${result.verdict}\n\nAnalysis: "${result.savageCommentary}"\n\nKatne ka Chance: ${result.katneKaChance.percentage}% 🔪\n\nScan your own risk before it's too late: ${window.location.origin}\n#RedFlagScanner #KatneKaChance`;
+    const verdict = sanitizeText(result.verdict);
+    const commentary = sanitizeText(result.savageCommentary);
+    
+    const shareText = `Bhai/Behen, mera relationship scan ka result aa gaya! 🚩💀\n\nVerdict: ${verdict}\n\nAnalysis: "${commentary}"\n\nKatne ka Chance: ${result.katneKaChance.percentage}% 🔪\n\nScan your own risk before it's too late: ${window.location.origin}\n#RedFlagScanner #KatneKaChance`;
     const encodedText = encodeURIComponent(shareText);
     window.open(`https://wa.me/?text=${encodedText}`, '_blank');
   };
 
   const handleCopy = () => {
-    const text = `🚩 Neural Red Flag Scan Result 🚩\n\nVerdict: ${result.verdict}\n\n"${result.savageCommentary}"\n\nToxicity: ${result.toxicityScore}% 💀\n\nAnalyze your disaster at: ${window.location.origin}\n\n*AIS Report - Entertainment Only*`;
+    const verdict = sanitizeText(result.verdict);
+    const commentary = sanitizeText(result.savageCommentary);
+    
+    const text = `🚩 Neural Red Flag Scan Result 🚩\n\nVerdict: ${verdict}\n\n"${commentary}"\n\nToxicity: ${result.toxicityScore}% 💀\n\nAnalyze your disaster at: ${window.location.origin}\n\n*AIS Report - Entertainment Only*`;
     navigator.clipboard.writeText(text);
-    alert('Diagnostics copied to clipboard! 🚩');
+    alert('Diagnostics copied to clipboard! (Name hidden for privacy) 🚩');
   };
 
   const getToxicityColor = (score: number) => {
@@ -220,7 +240,7 @@ const ScanResultView = ({ result, onReset }: { result: ScanResult; onReset: () =
       animate={{ opacity: 1, y: 0 }}
       className="max-w-2xl mx-auto w-full space-y-8 pb-32 px-4"
     >
-      <div ref={resultRef} className="glass-card neon-border p-8 space-y-10 relative overflow-hidden backdrop-blur-3xl">
+      <div ref={resultRef} className="glass-card neon-border p-5 md:p-8 space-y-10 relative overflow-hidden backdrop-blur-3xl">
         {/* Glow Effects */}
         <div className="absolute -top-32 -right-32 w-64 h-64 bg-rose-600/10 blur-[120px] rounded-full" />
         <div className="absolute -bottom-32 -left-32 w-64 h-64 bg-purple-600/10 blur-[120px] rounded-full" />
@@ -241,7 +261,7 @@ const ScanResultView = ({ result, onReset }: { result: ScanResult; onReset: () =
           <motion.h2 
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="text-3xl md:text-5xl font-black tracking-tight leading-tight uppercase text-gradient px-4"
+            className="text-3xl md:text-5xl font-black tracking-tight leading-tight uppercase text-gradient"
           >
             {result.openingReaction}
           </motion.h2>
@@ -252,13 +272,13 @@ const ScanResultView = ({ result, onReset }: { result: ScanResult; onReset: () =
             transition={{ delay: 0.3 }}
             className="relative"
           >
-            <p className="text-zinc-400 text-lg md:text-xl leading-relaxed font-bold px-4 max-w-lg mx-auto">
+            <p className="text-zinc-400 text-lg md:text-xl leading-relaxed font-bold max-w-lg mx-auto">
               {result.analysis}
             </p>
           </motion.div>
         </div>
 
-        <div className="p-8 bg-black/60 rounded-[3rem] border border-white/5 space-y-10 relative z-10 backdrop-blur-md">
+        <div className="p-5 md:p-8 bg-black/60 rounded-[2rem] md:rounded-[3rem] border border-white/5 space-y-10 relative z-10 backdrop-blur-md">
           <ToxicityMeter score={result.toxicityScore} />
           
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -277,7 +297,7 @@ const ScanResultView = ({ result, onReset }: { result: ScanResult; onReset: () =
             <Zap className="w-3 h-3 fill-current" />
             <span className="font-black uppercase tracking-[0.4em] text-[8px]">Inevitability Quotient</span>
           </div>
-          <div className="glass p-8 bg-rose-600/10 border-rose-600/40 flex flex-col md:flex-row items-center justify-between gap-6 overflow-hidden relative group rounded-[2.5rem] shadow-[0_0_50px_rgba(225,29,72,0.1)]">
+          <div className="glass p-5 md:p-8 bg-rose-600/10 border-rose-600/40 flex flex-col md:flex-row items-center justify-between gap-6 overflow-hidden relative group rounded-[2.5rem] shadow-[0_0_50px_rgba(225,29,72,0.1)]">
             <div className="absolute inset-0 bg-gradient-to-br from-rose-600/5 to-transparent pointer-events-none" />
             <div className="relative z-10 text-center md:text-left">
               <span className="text-6xl md:text-7xl font-black text-rose-600 tracking-tighter block mb-1 drop-shadow-[0_0_15px_rgba(225,29,72,0.5)]">
@@ -302,10 +322,10 @@ const ScanResultView = ({ result, onReset }: { result: ScanResult; onReset: () =
         <motion.div 
           initial={{ opacity: 0, scale: 0.98 }}
           whileInView={{ opacity: 1, scale: 1 }}
-          className="p-10 bg-zinc-900/20 border border-white/5 rounded-[3rem] text-center relative overflow-hidden group hover:border-rose-600/20 transition-colors"
+          className="p-6 md:p-10 bg-zinc-900/20 border border-white/5 rounded-[2.5rem] md:rounded-[3rem] text-center relative overflow-hidden group hover:border-rose-600/20 transition-colors"
         >
           <div className="absolute top-4 left-6 opacity-20 text-4xl font-black text-rose-600 select-none italic">"</div>
-          <p className="text-white font-black text-2xl md:text-3xl px-6 relative z-10 tracking-tight leading-snug">
+          <p className="text-white font-black text-2xl md:text-3xl relative z-10 tracking-tight leading-snug">
             {result.savageCommentary}
           </p>
           <div className="absolute bottom-4 right-6 opacity-20 text-4xl font-black text-rose-600 select-none italic rotate-180">"</div>
@@ -328,7 +348,7 @@ const ScanResultView = ({ result, onReset }: { result: ScanResult; onReset: () =
             <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
             <span className="text-[8px] font-black uppercase tracking-[0.3em] text-emerald-500/60">AI Advisory Bulletin</span>
           </div>
-          <p className="text-emerald-400 font-bold text-xs md:text-sm leading-relaxed px-4">
+          <p className="text-emerald-400 font-bold text-xs md:text-sm leading-relaxed">
             {result.motivationalMessage}
           </p>
         </motion.div>
@@ -810,6 +830,23 @@ export default function App() {
     setConsentTwo(false);
   };
 
+  const getWordCount = (text: string) => {
+    return text.trim().split(/\s+/).filter(Boolean).length;
+  };
+
+  const handleSituationChange = (text: string) => {
+    if (getWordCount(text) > 150) {
+      // Allow deleting but not adding more words
+      const words = text.trim().split(/\s+/);
+      if (words.length > 150 && text.length > situation.length) {
+        return;
+      }
+    }
+    setSituation(text);
+  };
+
+  const isWordLimitExceeded = getWordCount(situation) > 150;
+
   return (
     <div className="min-h-screen relative text-white selection:bg-rose-500 selection:text-white pb-10">
       {/* Background Glows */}
@@ -928,24 +965,32 @@ export default function App() {
                   </div>
 
                   <div className="max-w-lg mx-auto space-y-4">
-                    <div className="glass bg-black/60 border-zinc-800 p-2 rounded-2xl focus-within:border-rose-900/50 transition-colors">
+                    <div className="glass bg-black/60 border-zinc-800 p-2 rounded-2xl focus-within:border-rose-900/50 transition-colors relative">
                       <input 
                         type="text"
                         placeholder="What happened? 'She said I need space...'"
                         value={situation}
-                        onChange={(e) => setSituation(e.target.value)}
-                        className="w-full bg-transparent px-6 py-4 text-sm font-bold text-white outline-none placeholder:text-zinc-700"
+                        onChange={(e) => handleSituationChange(e.target.value)}
+                        className={`w-full bg-transparent px-6 py-4 text-sm font-bold text-white outline-none placeholder:text-zinc-700 ${isWordLimitExceeded ? 'text-rose-500' : ''}`}
                       />
+                      <div className={`absolute right-3 bottom-3 px-2 py-1 rounded-md text-[8px] font-black uppercase tracking-widest backdrop-blur-md border transition-colors ${
+                        isWordLimitExceeded 
+                          ? 'bg-rose-950/40 border-rose-600/50 text-rose-500' 
+                          : 'bg-white/5 border-white/10 text-zinc-500'
+                      }`}>
+                        {getWordCount(situation)} / 150 <span className="opacity-50">WORDS</span>
+                      </div>
                     </div>
                     <button 
                       onClick={() => {
-                        if (situation.trim()) {
+                        if (situation.trim() && !isWordLimitExceeded) {
                           setStep('name');
-                        } else {
+                        } else if (!isWordLimitExceeded) {
                           setStep('name');
                         }
                       }}
-                      className="w-full py-5 bg-rose-900/20 border border-rose-900/30 text-rose-500 rounded-2xl font-black uppercase text-xs tracking-[0.2em] hover:bg-rose-900/40 transition-all flex items-center justify-center gap-3 group"
+                      disabled={isWordLimitExceeded}
+                      className="w-full py-5 bg-rose-900/20 border border-rose-900/30 text-rose-500 rounded-2xl font-black uppercase text-xs tracking-[0.2em] hover:bg-rose-900/40 transition-all flex items-center justify-center gap-3 group disabled:opacity-20"
                     >
                       Begin Toxicology Scan
                       <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
@@ -1136,11 +1181,11 @@ export default function App() {
                 <p className="text-zinc-500 font-medium tracking-tight">Ab pura kissa bataiye. Spicy details only. 📱🚩</p>
               </div>
 
-              <div className="glass-card neon-border ring-1 ring-white/10 focus-within:ring-rose-500/50 transition-all shadow-2xl overflow-hidden p-1">
+              <div className="glass-card neon-border ring-1 ring-white/10 focus-within:ring-rose-500/50 transition-all shadow-2xl overflow-hidden p-1 relative">
                 <textarea
                   autoFocus
                   value={situation}
-                  onChange={(e) => setSituation(e.target.value)}
+                  onChange={(e) => handleSituationChange(e.target.value)}
                   placeholder={[
                     "My boyfriend replies after 8 hours...",
                     "She still talks to her ex daily 😭",
@@ -1148,9 +1193,20 @@ export default function App() {
                     "My crush sends mixed signals 🤡",
                     "She blocked me then watched my story 🚩"
                   ][Math.floor(Date.now() / 3000) % 5]}
-                  className="w-full bg-transparent p-6 text-xl md:text-2xl outline-none resize-none min-h-[250px] text-white placeholder-zinc-700 font-bold italic"
+                  className={`w-full bg-transparent p-6 text-xl md:text-2xl outline-none resize-none min-h-[250px] text-white placeholder-zinc-700 font-bold italic ${isWordLimitExceeded ? 'text-rose-500' : ''}`}
                 />
                 
+                <div className={`absolute top-4 right-4 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-[0.2em] border backdrop-blur-lg transition-all duration-300 ${
+                  isWordLimitExceeded 
+                    ? 'bg-rose-950/60 border-rose-600/50 text-rose-500 animate-pulse ring-2 ring-rose-600/20' 
+                    : 'bg-black/40 border-white/5 text-zinc-500'
+                }`}>
+                  <span className={isWordLimitExceeded ? 'text-rose-400' : 'text-zinc-300'}>{getWordCount(situation)}</span>
+                  <span className="opacity-30 mx-1">/</span> 
+                  150 
+                  <span className="hidden md:inline opacity-40 ml-1">WORDS</span>
+                </div>
+
                 {/* Trust Indicators */}
                 <div className="flex items-center justify-center gap-4 py-3 border-t border-white/5 bg-black/20">
                    <div className="flex items-center gap-1 opacity-40">
@@ -1189,8 +1245,8 @@ export default function App() {
                   </div>
                   <button
                     onClick={handleScan}
-                    disabled={!situation.trim()}
-                    className="w-full md:w-auto px-10 py-5 bg-rose-600 text-white rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-rose-700 transition-all shadow-xl md:relative fixed bottom-6 left-6 right-6 z-50 md:bottom-0 md:left-0 md:right-0 flex items-center justify-center gap-2 group"
+                    disabled={!situation.trim() || isWordLimitExceeded}
+                    className="w-full md:w-auto px-10 py-5 bg-rose-600 text-white rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-rose-700 transition-all shadow-xl md:relative fixed bottom-6 left-6 right-6 z-50 md:bottom-0 md:left-0 md:right-0 flex items-center justify-center gap-2 group disabled:opacity-20 disabled:cursor-not-allowed"
                   >
                     Run Diagnostics 🚩
                     <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
@@ -1394,6 +1450,8 @@ export default function App() {
               key="result" 
               result={result} 
               onReset={resetAll} 
+              partnerName={partnerName}
+              partnerGender={partnerGender}
             />
           )}
         </AnimatePresence>
