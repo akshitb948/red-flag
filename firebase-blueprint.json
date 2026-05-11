@@ -1,0 +1,61 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile information",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "displayName": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email"]
+    },
+    "Scan": {
+      "title": "Scan",
+      "description": "Relationship scan results",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "partnerName": { "type": "string" },
+        "partnerGender": { "type": "string" },
+        "userGender": { "type": "string" },
+        "situation": { "type": "string" },
+        "mode": { "type": "string" },
+        "result": {
+          "type": "object",
+          "properties": {
+            "openingReaction": { "type": "string" },
+            "analysis": { "type": "string" },
+            "savageCommentary": { "type": "string" },
+            "toxicityScore": { "type": "number" },
+            "katneKaChance": {
+              "type": "object",
+              "properties": {
+                "percentage": { "type": "number" },
+                "message": { "type": "string" }
+              }
+            },
+            "verdict": { "type": "string" },
+            "motivationalMessage": { "type": "string" }
+          }
+        },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "partnerName", "situation", "result", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profile storage"
+    },
+    "/scans/{scanId}": {
+      "schema": "Scan",
+      "description": "Individual scan results"
+    }
+  }
+}

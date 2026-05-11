@@ -1,0 +1,100 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg-dark: #080808;
+  --color-toxic-red: #c41e3a;
+  --color-toxic-pink: #b826b8;
+  --color-toxic-purple: #4a148c;
+}
+
+@layer base {
+  body {
+    @apply bg-[var(--color-bg-dark)] text-zinc-100 font-sans selection:bg-rose-900/30 overflow-x-hidden antialiased;
+  }
+}
+
+@layer components {
+  .glass {
+    @apply bg-white/[0.02] backdrop-blur-xl border border-white/[0.08] rounded-2xl;
+  }
+  
+  .glass-card {
+    @apply bg-zinc-900/[0.4] backdrop-blur-3xl border border-zinc-800 rounded-[2.5rem] shadow-2xl;
+  }
+
+  .toxic-gradient {
+    background: linear-gradient(135deg, #c41e3a 0%, #880e4f 50%, #4a148c 100%);
+  }
+
+  .toxic-glow {
+    @apply shadow-[0_0_20px_rgba(196,30,58,0.2)];
+  }
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-rose-600 via-zinc-200 to-zinc-400;
+  }
+
+  .neon-border {
+    position: relative;
+  }
+  .neon-border::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    background: linear-gradient(90deg, #c41e3a, #4a148c, #c41e3a);
+    background-size: 400% 400%;
+    z-index: -1;
+    border-radius: inherit;
+    animation: neon-flow 12s linear infinite;
+    opacity: 0.3;
+    filter: blur(4px);
+  }
+}
+
+@keyframes neon-flow {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 400% 50%; }
+}
+
+@keyframes float {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-15px) rotate(5deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
+}
+
+@keyframes pulse-glow {
+  0% { opacity: 0.1; transform: scale(1); }
+  50% { opacity: 0.2; transform: scale(1.05); }
+  100% { opacity: 0.1; transform: scale(1); }
+}
+
+.float-emoji {
+  animation: float 12s ease-in-out infinite;
+}
+
+.bg-glow {
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(196, 30, 58, 0.08) 0%, transparent 70%);
+  filter: blur(100px);
+  pointer-events: none;
+  animation: pulse-glow 15s ease-in-out infinite;
+}
+
+.markdown-body h1 { @apply text-white font-black uppercase tracking-tighter text-3xl mt-10 mb-6; }
+.markdown-body h2 { @apply text-white font-black uppercase tracking-tight text-xl mt-8 mb-4; }
+.markdown-body p { @apply text-zinc-400 font-bold leading-7 mb-4; }
+.markdown-body ul { @apply list-disc list-outside ml-4 space-y-2 mb-6 text-zinc-400 font-bold; }
+.markdown-body strong { @apply text-rose-500 font-black; }
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-white/10 rounded-full hover:bg-white/20 transition-colors;
+}

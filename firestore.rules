@@ -1,0 +1,72 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 0. Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- Helper Functions ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // --- Entity Validations ---
+
+    function isValidUser(data) {
+      return data.uid == request.auth.uid &&
+             data.email is string && data.email.size() <= 256 &&
+             data.keys().hasAll(['uid', 'email', 'createdAt']) &&
+             data.keys().size() <= 10;
+    }
+
+    function isValidScan(data) {
+      return data.partnerName is string && data.partnerName.size() <= 100 &&
+             data.situation is string && data.situation.size() <= 5000 &&
+             data.result is map &&
+             data.createdAt == request.time &&
+             (data.userId == null || data.userId == request.auth.uid) &&
+             data.keys().hasAll(['id', 'partnerName', 'situation', 'result', 'createdAt']) &&
+             data.keys().size() <= 15;
+    }
+
+    // --- Collection Rules ---
+
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow create: if isOwner(userId) && isValidUser(incoming());
+      allow update: if isOwner(userId) && isValidUser(incoming()) && 
+                    incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'photoURL', 'updatedAt']);
+    }
+
+    match /scans/{scanId} {
+      // Allow getting individual scans if public or owned
+      allow get: if isValidId(scanId) && (existing().userId == null || isOwner(existing().userId));
+      
+      // Allow creating scans (even anonymously if app supports it, but here we require it if they are logged in)
+      allow create: if isValidId(scanId) && isValidScan(incoming());
+      
+      // Scans are immutable for now
+      allow update, delete: if false;
+
+      // Secure list queries
+      allow list: if isOwner(resource.data.userId);
+    }
+  }
+}
