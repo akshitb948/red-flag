@@ -4,9 +4,17 @@ import { ScanMode, ScanResult, ReportCard } from "../types";
 export { ScanMode };
 export type { ScanResult, ReportCard };
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
-
 export async function scanRelationship(situation: string, mode: ScanMode, partnerName: string, partnerGender: string, userGender: string): Promise<ScanResult> {
+  try {
+    // @ts-ignore - process.env is injected by Vite's define in dev and build
+    const apiKey = process.env.GEMINI_API_KEY;
+    
+    if (!apiKey) {
+      throw new Error("MISSING_API_KEY");
+    }
+
+    const ai = new GoogleGenAI({ apiKey });
+
   const systemInstruction = `
     You are the "Neural Relationship Postmortem Engine" — a savage, meme-obsessed, highly observant Gen-Z relationship analyst who speaks pure, natural, and relatable "Desi Hindi" (Hinglish/Slang). 
     Your goal is to perform a surgical analysis on the user's relationship with "${partnerName}" (${partnerGender}).
@@ -85,7 +93,6 @@ export async function scanRelationship(situation: string, mode: ScanMode, partne
     - If input mentions abuse, self-harm, or violence: Stop the roast immediately. Transition to a serious, supportive "Emergency Response" tone. Frame it as "Safety Diagnostics Detected Serious Risk". Advise professional help and provide emotional support. Set toxicityScore to 0. NEVER mock these situations.
   `;
 
-  try {
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
       contents: `Partner Name: ${partnerName}\nGender: ${partnerGender}\nSituation: ${situation}\nMode: ${mode}`,
@@ -132,9 +139,26 @@ export async function scanRelationship(situation: string, mode: ScanMode, partne
 
     const result = JSON.parse(response.text);
     return result;
-  } catch (error) {
+  } catch (error: any) {
     console.error("AI Scan failed:", error);
-    // Fallback response for nonsense or errors
+    
+    if (error.message === "MISSING_API_KEY") {
+      return {
+        openingReaction: "Bhai API key hi gayab hai! 💀",
+        analysis: "Mera engine start nahi ho raha kyunki fuel (API Key) missing hai. Settings ya .env mein key check karo.",
+        savageCommentary: "Configuration error detected. Character development delayed.",
+        toxicityScore: 0,
+        katneKaChance: { percentage: 0, message: "Pehle key toh daalo 🤡" },
+        verdict: "API KEY NOT FOUND 🚩",
+        reportCards: [
+          { title: "Status", value: "Offline", emoji: "🔌", color: "red" },
+          { title: "Fix", value: "Add Key", emoji: "🛠️", color: "blue" }
+        ],
+        motivationalMessage: "Go to Settings > Secrets and add GEMINI_API_KEY to see the real roast!"
+      };
+    }
+
+    // Fallback response for other errors
     return {
       openingReaction: "Bhai scanner ko hi confusion ho gaya 💀",
       analysis: `Ye jo tumne ${partnerName} ke baare mein likha hai, isse toh AI bhi dump kar dega. Refresh karke thoda dhang ka scene batayo.`,
