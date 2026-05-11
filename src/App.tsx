@@ -331,11 +331,61 @@ const ScanResultView = ({ result, onReset, partnerName, partnerGender }: { resul
           <div className="absolute bottom-4 right-6 opacity-20 text-4xl font-black text-rose-600 select-none italic rotate-180">"</div>
         </motion.div>
 
-        <div className="text-center pt-4 relative z-10">
-          <span className="text-[9px] uppercase tracking-[0.6em] text-zinc-700 font-black block mb-4">Official Classification</span>
-          <div className="inline-block px-8 py-3 bg-white text-black rounded-full shadow-[0_0_40px_rgba(255,255,255,0.1)]">
-            <p className="text-xl md:text-2xl font-black tracking-[0.1em] uppercase">{result.verdict}</p>
-          </div>
+        <div className="text-center pt-16 pb-12 relative z-10 w-full flex justify-center px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            className="flex flex-col items-center w-full max-w-xl"
+          >
+            <div className="mb-10 flex flex-col items-center gap-2">
+              <span className="text-[10px] md:text-[12px] uppercase tracking-[1em] text-zinc-800 font-black italic">Neural Classification Seal</span>
+              <div className="h-px w-32 bg-gradient-to-r from-transparent via-zinc-800 to-transparent" />
+            </div>
+
+            <div className="relative group">
+              {/* Primary Stamp Circle */}
+              <div className="bg-white text-black w-72 h-72 md:w-[400px] md:h-[400px] rounded-full shadow-[0_50px_100px_-20px_rgba(255,255,255,0.2)] relative z-10 border-[16px] border-zinc-100 flex flex-col items-center justify-center p-8 md:p-12 transform group-hover:scale-[1.02] transition-all duration-700">
+                
+                {/* Auth Decor */}
+                <div className="absolute top-10 md:top-16 opacity-20 hidden md:block">
+                   <div className="flex items-center gap-2">
+                     <div className="h-[2px] w-6 bg-black" />
+                     <span className="text-[8px] font-black tracking-widest">A-2026/X</span>
+                     <div className="h-[2px] w-6 bg-black" />
+                   </div>
+                </div>
+
+                <motion.div 
+                  initial={{ scale: 0.9 }}
+                  animate={{ scale: 1 }}
+                  className="w-full h-full flex items-center justify-center"
+                >
+                  <p className="text-xl md:text-3xl font-black tracking-tight uppercase leading-[1] text-center w-full break-words">
+                    {result.verdict}
+                  </p>
+                </motion.div>
+
+                {/* Bottom Decor */}
+                <div className="absolute bottom-10 md:bottom-16 opacity-20 hidden md:block">
+                   <div className="flex items-center gap-2">
+                     <div className="h-[2px] w-6 bg-black" />
+                     <span className="text-[8px] font-black tracking-widest">CERTIFIED DISASTER</span>
+                     <div className="h-[2px] w-6 bg-black" />
+                   </div>
+                </div>
+              </div>
+
+              {/* The "Red Flag" Seal */}
+              <div className="absolute -bottom-6 -right-6 md:-bottom-10 md:-right-10 w-20 h-20 md:w-28 md:h-28 bg-rose-600 rounded-full flex items-center justify-center shadow-[0_20px_50px_rgba(225,29,72,0.4)] z-20 border-[6px] md:border-[10px] border-[#080808] -rotate-15 group-hover:rotate-0 transition-transform duration-500">
+                <Skull className="w-8 h-8 md:w-12 md:h-12 text-white" />
+              </div>
+
+              {/* Secondary Icon badge */}
+              <div className="absolute -top-4 -left-4 md:-top-8 md:-left-8 w-12 h-12 md:w-16 md:h-16 bg-zinc-900 rounded-2xl flex items-center justify-center shadow-2xl z-20 border-4 border-white/5 rotate-12 group-hover:rotate-0 transition-transform duration-500">
+                <ShieldAlert className="w-6 h-6 md:w-8 md:h-8 text-rose-600" />
+              </div>
+            </div>
+          </motion.div>
         </div>
 
         {/* Motivational Message */}
@@ -835,13 +885,6 @@ export default function App() {
   };
 
   const handleSituationChange = (text: string) => {
-    if (getWordCount(text) > 150) {
-      // Allow deleting but not adding more words
-      const words = text.trim().split(/\s+/);
-      if (words.length > 150 && text.length > situation.length) {
-        return;
-      }
-    }
     setSituation(text);
   };
 
@@ -975,12 +1018,17 @@ export default function App() {
                       />
                       <div className={`absolute right-3 bottom-3 px-2 py-1 rounded-md text-[8px] font-black uppercase tracking-widest backdrop-blur-md border transition-colors ${
                         isWordLimitExceeded 
-                          ? 'bg-rose-950/40 border-rose-600/50 text-rose-500' 
+                          ? 'bg-rose-500 border-rose-600 text-white' 
                           : 'bg-white/5 border-white/10 text-zinc-500'
                       }`}>
-                        {getWordCount(situation)} / 150 <span className="opacity-50">WORDS</span>
+                        {getWordCount(situation)} / 150 <span className={isWordLimitExceeded ? 'text-white' : 'opacity-50'}>WORDS</span>
                       </div>
                     </div>
+                    {isWordLimitExceeded && (
+                      <p className="text-[10px] text-rose-500 font-bold uppercase tracking-widest text-center animate-bounce">
+                        Please trim your story to 150 words! ✂️
+                      </p>
+                    )}
                     <button 
                       onClick={() => {
                         if (situation.trim() && !isWordLimitExceeded) {
@@ -1198,14 +1246,22 @@ export default function App() {
                 
                 <div className={`absolute top-4 right-4 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-[0.2em] border backdrop-blur-lg transition-all duration-300 ${
                   isWordLimitExceeded 
-                    ? 'bg-rose-950/60 border-rose-600/50 text-rose-500 animate-pulse ring-2 ring-rose-600/20' 
+                    ? 'bg-rose-600 border-rose-600 text-white animate-pulse ring-4 ring-rose-600/20' 
                     : 'bg-black/40 border-white/5 text-zinc-500'
                 }`}>
-                  <span className={isWordLimitExceeded ? 'text-rose-400' : 'text-zinc-300'}>{getWordCount(situation)}</span>
+                  <span className={isWordLimitExceeded ? 'text-white' : 'text-zinc-300'}>{getWordCount(situation)}</span>
                   <span className="opacity-30 mx-1">/</span> 
                   150 
                   <span className="hidden md:inline opacity-40 ml-1">WORDS</span>
                 </div>
+
+                {isWordLimitExceeded && (
+                  <div className="absolute inset-x-0 top-16 flex justify-center pointer-events-none">
+                    <span className="bg-rose-600 text-white px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-2xl">
+                       Word Limit Exceeded - Please Trim! ✂️
+                    </span>
+                  </div>
+                )}
 
                 {/* Trust Indicators */}
                 <div className="flex items-center justify-center gap-4 py-3 border-t border-white/5 bg-black/20">
