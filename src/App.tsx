@@ -50,7 +50,9 @@ import {
   getDocs, 
   orderBy, 
   serverTimestamp,
-  addDoc 
+  addDoc,
+  getDoc,
+  updateDoc
 } from 'firebase/firestore';
 import { OperationType, handleFirestoreError } from './lib/firebaseUtils';
 
@@ -97,11 +99,8 @@ const Background = () => {
   );
 };
 
-const Header = ({ onStoriesClick, user, onLogin, onLogout }: { 
+const Header = ({ onStoriesClick }: { 
   onStoriesClick: () => void; 
-  user: User | null;
-  onLogin: () => void;
-  onLogout: () => void;
 }) => (
   <nav className="relative z-50 flex items-center justify-between p-6 max-w-7xl mx-auto w-full">
     <motion.div 
@@ -113,7 +112,7 @@ const Header = ({ onStoriesClick, user, onLogin, onLogout }: {
       <div className="w-8 h-8 bg-zinc-100 rounded-lg flex items-center justify-center shadow-[0_0_20px_rgba(255,255,255,0.1)]">
         <ShieldAlert className="text-black w-5 h-5" />
       </div>
-      <span className="font-black text-lg tracking-widest uppercase">RedFlag<span className="text-rose-600">Scanner</span></span>
+      <span className="font-black text-lg tracking-widest uppercase text-white">RedFlag<span className="text-rose-600">Scanner</span></span>
     </motion.div>
     
     <motion.div 
@@ -127,31 +126,11 @@ const Header = ({ onStoriesClick, user, onLogin, onLogout }: {
       >
         Breakup Stories 💔
       </button>
-
-      {user ? (
-        <div className="flex items-center gap-4">
-          <div className="flex flex-col items-end hidden sm:flex">
-             <span className="text-[9px] font-black uppercase text-zinc-500 tracking-widest">Logged In</span>
-             <span className="text-[10px] font-black uppercase text-white truncate max-w-[100px]">{user.displayName || 'Agent'}</span>
-          </div>
-          <button 
-            onClick={onLogout}
-            className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center group hover:border-rose-600/50 transition-all relative overflow-hidden"
-          >
-            <img src={user.photoURL || ''} alt="User" className="w-full h-full object-cover group-hover:opacity-50 transition-opacity" />
-            <LogOut className="absolute opacity-0 group-hover:opacity-100 transition-opacity w-4 h-4 text-white" />
-          </button>
-        </div>
-      ) : (
-        <button 
-          onClick={onLogin}
-          className="flex items-center gap-2 px-6 py-2.5 bg-white text-black rounded-full font-black text-[10px] uppercase tracking-widest hover:bg-zinc-200 transition-all shadow-xl"
-        >
-          <UserIcon className="w-4 h-4" />
-          <span className="hidden sm:inline">Connect Profile</span>
-          <span className="inline sm:hidden">Connect</span>
-        </button>
-      )}
+      
+      <div className="flex items-center gap-2 px-4 py-2 glass border-zinc-800 rounded-full">
+        <div className="w-1.5 h-1.5 bg-rose-600 rounded-full animate-pulse" />
+        <span className="text-[9px] font-black uppercase text-zinc-400 tracking-widest">Neural Mode active</span>
+      </div>
     </motion.div>
   </nav>
 );
@@ -217,8 +196,14 @@ const ScanResultView = ({ result, onReset }: { result: ScanResult; onReset: () =
     return () => clearInterval(timer);
   }, [result]);
 
+  const handleShareWhatsApp = () => {
+    const shareText = `Bhai/Behen, mera relationship scan ka result aa gaya! 🚩💀\n\nVerdict: ${result.verdict}\n\nAnalysis: "${result.savageCommentary}"\n\nKatne ka Chance: ${result.katneKaChance.percentage}% 🔪\n\nScan your own risk before it's too late: ${window.location.origin}\n#RedFlagScanner #KatneKaChance`;
+    const encodedText = encodeURIComponent(shareText);
+    window.open(`https://wa.me/?text=${encodedText}`, '_blank');
+  };
+
   const handleCopy = () => {
-    const text = `🚩 Neural Red Flag Scan Result 🚩\n\nVerdict: ${result.verdict}\n\n"${result.savageCommentary}"\n\nToxicity: ${result.toxicityScore}% 💀\n\nAnalyze your disaster at: ${window.location.href}\n\n*DISCLAIMER: AI-generated entertainment report. Results may be exaggerated, humorous, or inaccurate. Not professional advice.*`;
+    const text = `🚩 Neural Red Flag Scan Result 🚩\n\nVerdict: ${result.verdict}\n\n"${result.savageCommentary}"\n\nToxicity: ${result.toxicityScore}% 💀\n\nAnalyze your disaster at: ${window.location.origin}\n\n*AIS Report - Entertainment Only*`;
     navigator.clipboard.writeText(text);
     alert('Diagnostics copied to clipboard! 🚩');
   };
@@ -374,24 +359,28 @@ const ScanResultView = ({ result, onReset }: { result: ScanResult; onReset: () =
 
       <div className="flex flex-col md:flex-row gap-4">
         <button 
-          onClick={handleCopy}
-          className="flex-1 flex items-center justify-center gap-3 p-6 glass hover:bg-white/[0.05] transition-all font-black uppercase text-xs tracking-widest group rounded-2xl border-white/5"
+          onClick={handleShareWhatsApp}
+          className="flex-1 flex items-center justify-center gap-3 p-6 bg-[#25D366] text-white rounded-2xl hover:bg-[#128C7E] transition-all font-black uppercase text-xs tracking-widest shadow-2xl group"
         >
-          <Copy className="w-4 h-4 group-hover:scale-110 transition-transform text-rose-600" />
-          <span>Copy Diagnostics</span>
+          <Share2 className="w-4 h-4 group-hover:scale-110 transition-transform" />
+          <span>Share on WhatsApp</span>
         </button>
         <button 
           onClick={onReset}
-          className="flex-1 flex items-center justify-center gap-3 p-6 bg-white text-black rounded-2xl hover:bg-zinc-200 transition-all font-black uppercase text-xs tracking-widest shadow-2xl"
+          className="flex-1 flex items-center justify-center gap-3 p-6 glass border-white/10 text-white rounded-2xl hover:bg-white/5 transition-all font-black uppercase text-xs tracking-widest group"
         >
-          <RotateCcw className="w-4 h-4" />
+          <RotateCcw className="w-4 h-4 group-hover:rotate-180 transition-transform duration-500" />
           <span>New Investigation</span>
         </button>
       </div>
 
       <div className="flex justify-center gap-8 pt-4">
         {['WhatsApp', 'Instagram', 'Twitter'].map(plat => (
-          <button key={plat} className="flex flex-col items-center gap-2 group">
+          <button 
+            key={plat} 
+            onClick={() => plat === 'WhatsApp' ? handleShareWhatsApp() : handleCopy()}
+            className="flex flex-col items-center gap-2 group"
+          >
             <div className="w-12 h-12 glass rounded-full flex items-center justify-center group-hover:bg-white/10 transition-colors border-white/5">
               <Share2 className="w-5 h-5 text-zinc-400 group-hover:text-white" />
             </div>
@@ -450,6 +439,25 @@ const LoadingView = () => {
           {messages[msgIdx]}
         </motion.p>
       </AnimatePresence>
+
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5 }}
+        className="pt-10"
+      >
+        <div className="flex flex-col items-center gap-4">
+          <div className="px-6 py-2 bg-rose-600/10 border border-rose-600/30 rounded-full flex items-center gap-3 shadow-[0_0_20px_rgba(225,29,72,0.1)]">
+            <ShieldCheck className="w-4 h-4 text-rose-600" />
+            <span className="text-[10px] font-black uppercase tracking-widest text-rose-500">
+              Approved by the International Red Flag Association 🚩
+            </span>
+          </div>
+          <p className="text-[8px] font-black uppercase tracking-[0.3em] text-zinc-800">
+            Certificate ID: IRFA-2026-69420-ROAST
+          </p>
+        </div>
+      </motion.div>
     </div>
   );
 };
@@ -675,17 +683,28 @@ export default function App() {
         // Sync user to firestore
         const userRef = doc(db, 'users', u.uid);
         try {
-          await setDoc(userRef, {
-            uid: u.uid,
-            email: u.email,
-            displayName: u.displayName,
-            photoURL: u.photoURL,
-            updatedAt: serverTimestamp(),
-            createdAt: serverTimestamp() // setDoc with merge: true or exists check
-          }, { merge: true });
+          const userSnap = await getDoc(userRef);
+          if (!userSnap.exists()) {
+            await setDoc(userRef, {
+              uid: u.uid,
+              email: u.email,
+              displayName: u.displayName,
+              photoURL: u.photoURL,
+              createdAt: serverTimestamp(),
+              updatedAt: serverTimestamp()
+            });
+          } else {
+            await updateDoc(userRef, {
+              displayName: u.displayName,
+              photoURL: u.photoURL,
+              updatedAt: serverTimestamp()
+            });
+          }
           fetchHistory(u.uid);
         } catch (e) {
-          handleFirestoreError(e, OperationType.WRITE, `users/${u.uid}`);
+          // Identify if it was the initial getDoc or a subsequent write
+          const isGet = (e as any)?.code === 'permission-denied' && !(e as any)?.stack?.includes('setDoc') && !(e as any)?.stack?.includes('updateDoc');
+          handleFirestoreError(e, isGet ? OperationType.GET : OperationType.WRITE, `users/${u.uid}`);
         }
       }
     });
@@ -711,8 +730,13 @@ export default function App() {
     const provider = new GoogleAuthProvider();
     try {
       await signInWithPopup(auth, provider);
-    } catch (e) {
+    } catch (e: any) {
       console.error("Login failed:", e);
+      if (e.code === 'auth/popup-closed-by-user') {
+        alert("The sign-in popup was closed before completion. Please try again and keep the popup open.");
+      } else {
+        alert("Login failed. Please check if your browser is blocking popups or if the domain is authorized in Firebase console.");
+      }
     }
   };
 
@@ -797,9 +821,6 @@ export default function App() {
       <Background />
       <Header 
         onStoriesClick={() => setStep('stories')} 
-        user={user}
-        onLogin={handleLogin}
-        onLogout={handleLogout}
       />
 
       <main className="relative z-10 container mx-auto px-4 md:px-6 pt-6 md:pt-10">
@@ -828,21 +849,12 @@ export default function App() {
                   Start Investigation
                   <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </button>
-                {user ? (
-                  <button
-                    onClick={() => setStep('history')}
-                    className="w-full max-w-xs px-10 py-5 bg-zinc-900/50 border border-zinc-800 text-zinc-400 rounded-full font-black tracking-widest text-xs uppercase hover:bg-zinc-800 hover:text-white transition-all flex items-center justify-center gap-3 group"
-                  >
-                    View Case Files 📂
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => setStep('stories')}
-                    className="w-full max-w-xs px-10 py-5 bg-zinc-900/50 border border-zinc-800 text-zinc-400 rounded-full font-black tracking-widest text-xs uppercase hover:bg-zinc-800 hover:text-white transition-all flex items-center justify-center gap-3 group"
-                  >
-                    Analyze Breakup Story 🥀
-                  </button>
-                )}
+                <button
+                  onClick={() => setStep('stories')}
+                  className="w-full max-w-xs px-10 py-5 bg-zinc-900/50 border border-zinc-800 text-zinc-400 rounded-full font-black tracking-widest text-xs uppercase hover:bg-zinc-800 hover:text-white transition-all flex items-center justify-center gap-3 group"
+                >
+                  Analyze Breakup Story 🥀
+                </button>
               </div>
                 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full md:max-w-2xl px-2">
@@ -956,7 +968,7 @@ export default function App() {
               className="max-w-md mx-auto space-y-12 text-center"
             >
               <div className="space-y-4">
-                <span className="text-rose-600 font-black text-[10px] uppercase tracking-[0.4em]">Step 01/04</span>
+                <span className="text-rose-600 font-black text-[10px] uppercase tracking-[0.4em]">Step 01/03</span>
                 <h2 className="text-4xl md:text-6xl font-black tracking-tight uppercase leading-none">Who are you? 👤</h2>
                 <p className="text-zinc-500 font-bold uppercase text-[10px] tracking-widest">Select your identity for calibration</p>
               </div>
@@ -965,7 +977,12 @@ export default function App() {
                 {['Male', 'Female'].map((g) => (
                   <button
                     key={g}
-                    onClick={() => { setUserGender(g); setStep('name'); }}
+                    onClick={() => { 
+                      setUserGender(g); 
+                      if (g === 'Male') setPartnerGender('Female');
+                      else if (g === 'Female') setPartnerGender('Male');
+                      setStep('name'); 
+                    }}
                     className="group relative p-8 bg-zinc-900/50 border border-zinc-800 rounded-3xl hover:border-rose-600/50 transition-all flex items-center justify-between overflow-hidden"
                   >
                     <div className="absolute inset-0 bg-gradient-to-r from-rose-600/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -1013,7 +1030,7 @@ export default function App() {
                 >
                   <span className="text-4xl">🎯</span>
                 </motion.div>
-                <span className="text-rose-600 font-black text-[10px] uppercase tracking-[0.4em]">Step 02/04</span>
+                <span className="text-rose-600 font-black text-[10px] uppercase tracking-[0.4em]">Step 02/03</span>
                 <h2 className="text-4xl md:text-6xl font-black tracking-tight leading-none uppercase">
                   {[
                     "IDENTIFY THE TARGET 🚩",
@@ -1035,7 +1052,7 @@ export default function App() {
                     type="text"
                     value={partnerName}
                     onChange={(e) => setPartnerName(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && partnerName.trim() && setStep('gender')}
+                    onKeyDown={(e) => e.key === 'Enter' && partnerName.trim() && setStep('story')}
                     placeholder="SUSPECT NAME..."
                     className="w-full bg-white/[0.02] p-8 md:p-12 text-3xl md:text-5xl rounded-[2rem] outline-none text-center font-black text-zinc-100 placeholder:text-zinc-800 transition-all focus:bg-white/[0.05] tracking-tighter uppercase"
                   />
@@ -1053,7 +1070,7 @@ export default function App() {
                 </button>
                 <button 
                   disabled={!partnerName.trim()}
-                  onClick={() => setStep('gender')}
+                  onClick={() => setStep('story')}
                   className="px-8 py-3 bg-white text-black rounded-full font-black text-xs uppercase tracking-widest hover:bg-zinc-200 transition-all disabled:opacity-30 flex items-center gap-2"
                 >
                   Confirm
@@ -1114,7 +1131,7 @@ export default function App() {
             >
               <div className="space-y-4">
                 <span className="text-rose-500 font-bold text-4xl">😭</span>
-                <span className="text-rose-600 font-black text-[10px] uppercase tracking-[0.4em]">Step 04/04</span>
+                <span className="text-rose-600 font-black text-[10px] uppercase tracking-[0.4em]">Step 03/03</span>
                 <h2 className="text-3xl md:text-5xl font-black italic tracking-tighter capitalize">EXPOSE "{partnerName}"</h2>
                 <p className="text-zinc-500 font-medium tracking-tight">Ab pura kissa bataiye. Spicy details only. 📱🚩</p>
               </div>
@@ -1200,7 +1217,7 @@ export default function App() {
                 ))}
               </div>
 
-              <button onClick={() => setStep('gender')} className="text-zinc-500 font-bold hover:text-white transition-colors">BACK</button>
+              <button onClick={() => setStep('name')} className="text-zinc-500 font-bold hover:text-white transition-colors">BACK</button>
             </motion.div>
           )}
 
@@ -1352,6 +1369,23 @@ export default function App() {
                   </div>
                 ))}
               </div>
+
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1 }}
+                className="pt-6 flex flex-col items-center gap-3"
+              >
+                <div className="px-5 py-2 bg-rose-600/10 border border-rose-600/30 rounded-full flex items-center gap-3">
+                  <ShieldCheck className="w-3.5 h-3.5 text-rose-600" />
+                  <span className="text-[9px] font-black uppercase tracking-widest text-rose-500">
+                    Approved by the International Red Flag Association 🚩
+                  </span>
+                </div>
+                <p className="text-[7px] font-black uppercase tracking-[0.3em] text-zinc-800">
+                  Authentication: IRFA-ROAST-992-SECURE
+                </p>
+              </motion.div>
             </motion.div>
           )}
 
@@ -1378,7 +1412,6 @@ export default function App() {
               <button onClick={() => navigateToLegal('privacy')} className="hover:text-rose-600 transition-colors uppercase">Privacy Encryption</button>
               <button onClick={() => navigateToLegal('terms')} className="hover:text-rose-600 transition-colors uppercase">Terms of Registry</button>
               <button onClick={() => navigateToLegal('disclaimer')} className="hover:text-rose-600 transition-colors uppercase">Official Disclaimer</button>
-              <a href="mailto:support@redflagscanner.ai" className="hover:text-rose-600 transition-colors uppercase">Contact Agent</a>
             </div>
             <div className="flex items-center justify-center gap-6 pt-4 opacity-30">
                <div className="flex items-center gap-1.5 grayscale">
@@ -1434,6 +1467,15 @@ export default function App() {
                     />
                  </div>
                  <p className="text-[9px] font-black uppercase tracking-[0.4em] text-zinc-600 mt-4">Calibrating Roast Intensity...</p>
+              </div>
+
+              <div className="pt-2 flex flex-col items-center gap-2">
+                <div className="px-4 py-1.5 bg-white/5 border border-white/10 rounded-full flex items-center gap-2">
+                  <ShieldCheck className="w-3 h-3 text-zinc-500" />
+                  <span className="text-[8px] font-black uppercase tracking-widest text-zinc-500">
+                    IRFA Protocol 01-A Compliant 🚩
+                  </span>
+                </div>
               </div>
             </motion.div>
           </motion.div>
