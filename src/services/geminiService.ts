@@ -12,8 +12,7 @@ export async function scanRelationship(
   userGender: string
 ): Promise<ScanResult> {
   try {
-    // @ts-ignore - process.env is injected by Vite's define in dev and build
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 
     if (!apiKey) {
       throw new Error("MISSING_API_KEY");
@@ -132,17 +131,17 @@ Mode: ${mode}
       return {
         openingReaction: "API key missing hai 💀",
         analysis:
-          "Gemini engine start nahi ho raha kyunki production build me API key nahi mil rahi. Settings mein GEMINI_API_KEY check karo.",
+          "Gemini engine start nahi ho raha kyunki production build me API key nahi mil rahi. .env me VITE_GEMINI_API_KEY add karo.",
         savageCommentary: "Roast engine fuel ke bina khada hai.",
         toxicityScore: 0,
         katneKaChance: { percentage: 0, message: "Pehle key connect karo 😭" },
         verdict: "API KEY NOT FOUND 🚩",
         reportCards: [
           { title: "AI Status", value: "Offline", emoji: "🔌", color: "red" },
-          { title: "Fix Needed", value: "Add Key", emoji: "🛠️", color: "blue" }
+          { title: "Fix Needed", value: "Add VITE Key", emoji: "🛠️", color: "blue" }
         ],
         motivationalMessage:
-          "Go to Settings > Secrets and add GEMINI_API_KEY to see the real roast!"
+          "Project root me .env file banao: VITE_GEMINI_API_KEY=your_key_here"
       };
     }
 
