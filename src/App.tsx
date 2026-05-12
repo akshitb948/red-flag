@@ -532,6 +532,145 @@ const LoadingView = () => {
   );
 };
 
+
+const AboutView = ({ onBack }: { onBack: () => void }) => {
+  return (
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="max-w-4xl mx-auto w-full px-6 py-20 space-y-24 relative z-10"
+    >
+      {/* Back Button */}
+      <motion.button 
+        initial={{ x: -20, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        onClick={onBack}
+        className="flex items-center gap-2 text-zinc-500 hover:text-white font-black text-[10px] uppercase tracking-widest group sticky top-0 bg-black/50 py-4 backdrop-blur-md z-50 w-full md:w-auto"
+      >
+        <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+        Back to Dashboard
+      </motion.button>
+
+      {/* Hero Section */}
+      <section className="text-center space-y-6 pt-10">
+        <motion.div
+           initial={{ scale: 0.9, opacity: 0 }}
+           animate={{ scale: 1, opacity: 1 }}
+        >
+          <h1 className="text-5xl md:text-8xl font-black tracking-tighter uppercase leading-none">
+            About <span className="text-rose-600">Red Flag</span> <br /> Scanner 🚩
+          </h1>
+        </motion.div>
+        <p className="text-zinc-500 font-bold text-lg md:text-xl max-w-2xl mx-auto tracking-tight">
+          Built for people who ignore red flags. The world's most savage Neural Relationship Postmortem Engine. 💀
+        </p>
+      </section>
+
+      {/* Grid Sections */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* Mission */}
+        <motion.div 
+          whileHover={{ y: -5 }}
+          className="glass-card p-10 border-white/5 space-y-6 bg-white/[0.02]"
+        >
+          <div className="w-12 h-12 bg-rose-600/10 rounded-2xl flex items-center justify-center border border-rose-600/20">
+            <Zap className="w-6 h-6 text-rose-600" />
+          </div>
+          <div className="space-y-3">
+            <h3 className="text-2xl font-black uppercase tracking-tight">Our Mission 🚀</h3>
+            <p className="text-zinc-400 font-bold text-sm leading-relaxed">
+              We're on a mission to weaponize AI for top-tier entertainment. Red Flag Scanner turns boring relationship chats into viral-worthy roasts, helping you navigate the digital dating wasteland with a smile and a healthy dose of skepticism.
+            </p>
+          </div>
+        </motion.div>
+
+        {/* Why We Built This */}
+        <motion.div 
+          whileHover={{ y: -5 }}
+          className="glass-card p-10 border-white/5 space-y-6 bg-white/[0.02]"
+        >
+          <div className="w-12 h-12 bg-purple-600/10 rounded-2xl flex items-center justify-center border border-purple-600/20">
+            <Flame className="w-6 h-6 text-purple-600" />
+          </div>
+          <div className="space-y-3">
+            <h3 className="text-2xl font-black uppercase tracking-tight">Why We Built This 🔥</h3>
+            <p className="text-zinc-400 font-bold text-sm leading-relaxed">
+              Let's be real: internet culture is built on relatability and humor. We felt the world needed a tool that didn't just "analyze" data, but understood the vibes. We built this to make AI interactive, funny, and shared between friends during those late-night Discord calls.
+            </p>
+          </div>
+        </motion.div>
+      </div>
+
+      {/* What We Do - Full Width */}
+      <section className="space-y-10">
+        <div className="text-center space-y-2">
+          <h2 className="text-3xl font-black uppercase tracking-tighter">What We Do 🛠️</h2>
+          <div className="h-1 w-20 bg-rose-600 mx-auto rounded-full" />
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+          {[
+            { title: "Red Flag Analysis", icon: <ShieldAlert className="w-5 h-5" />, desc: "Deep neural scans of vibe shifts." },
+            { title: "Savage Roasting", icon: <Skull className="w-5 h-5" />, desc: "AI that speaks fluent Gen Z sarcasm." },
+            { title: "Bio Diagnostics", icon: <FileText className="w-5 h-5" />, desc: "Roasting your dating profile effort." },
+            { title: "Toxicity Meters", icon: <TrendingDown className="w-5 h-5" />, desc: "Quantifying your emotional damage." },
+            { title: "Meme Engine", icon: <Share2 className="w-5 h-5" />, desc: "Results designed to be screenshotted." },
+            { title: "Neural Verdicts", icon: <ShieldCheck className="w-5 h-5" />, desc: "Official classifications of disaster." }
+          ].map((item, i) => (
+            <div key={i} className="glass p-6 border-zinc-900 rounded-3xl space-y-4 hover:border-white/10 transition-colors">
+              <div className="text-rose-600">{item.icon}</div>
+              <div className="space-y-1">
+                <h4 className="font-black uppercase tracking-tighter text-sm">{item.title}</h4>
+                <p className="text-[10px] text-zinc-500 font-bold leading-tight">{item.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Privacy & Safety */}
+      <section className="glass-card p-12 border-rose-600/20 bg-rose-600/[0.02] rounded-[3rem] relative overflow-hidden group">
+        <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
+          <Lock className="w-40 h-40 -mr-10 -mt-10 rotate-12" />
+        </div>
+        <div className="relative z-10 space-y-6">
+          <div className="flex items-center gap-3">
+             <div className="w-10 h-10 bg-rose-600 rounded-full flex items-center justify-center">
+                <Lock className="w-5 h-5 text-white" />
+             </div>
+             <h3 className="text-3xl font-black uppercase tracking-tighter italic">Privacy & Safety 🛡️</h3>
+          </div>
+          <p className="text-zinc-400 font-bold text-lg leading-relaxed max-w-2xl">
+            Your secrets are safe with the Neural Engine. We process your inputs for the roast and move on. No data is shared publicly unless you choose to screenshot it and put it on your story. We're here for the laughs, not the leaks.
+          </p>
+          <p className="text-[10px] text-zinc-600 font-black uppercase tracking-widest">⚠️ Note: This is an entertainment-first platform. vibe check responsibly.</p>
+        </div>
+      </section>
+
+      {/* Contact Section */}
+      <section className="text-center space-y-8 pb-10">
+        <div className="space-y-2">
+          <h3 className="text-2xl font-black uppercase tracking-tight">Slide into our Emails 📬</h3>
+          <p className="text-zinc-500 font-bold">Feedback, feature ideas, or just want to vent?</p>
+        </div>
+        <a 
+          href="mailto:akshiemail06@gmail.com"
+          className="inline-flex items-center gap-3 px-10 py-4 bg-white text-black rounded-full font-black text-sm uppercase tracking-widest hover:bg-zinc-200 transition-all shadow-2xl shadow-white/10"
+        >
+          akshiemail06@gmail.com
+          <ExternalLink className="w-4 h-4" />
+        </a>
+      </section>
+
+      {/* Final Footer bit */}
+      <div className="text-center pt-20 border-t border-white/5 opacity-50">
+        <p className="text-[10px] font-black uppercase tracking-[0.5em] text-zinc-500">
+          Made with AI & creativity 🚀
+        </p>
+      </div>
+    </motion.div>
+  );
+};
+
 const LegalView = ({ type, onBack }: { type: 'privacy' | 'terms' | 'disclaimer'; onBack: () => void }) => {
   const content = {
     privacy: PRIVACY_POLICY,
@@ -730,8 +869,8 @@ const BreakupStoriesView = ({ onBack }: { onBack: () => void }) => {
 // --- Main App ---
 
 export default function App() {
-  const [step, setStep] = useState<'home' | 'userGender' | 'name' | 'gender' | 'story' | 'consent' | 'scan' | 'result' | 'privacy' | 'terms' | 'disclaimer' | 'stories' | 'history'>('home');
-  const [lastStep, setLastStep] = useState<'home' | 'userGender' | 'name' | 'gender' | 'story' | 'consent' | 'scan' | 'result' | 'privacy' | 'terms' | 'disclaimer' | 'stories' | 'history'>('home');
+  const [step, setStep] = useState<'home' | 'userGender' | 'name' | 'gender' | 'story' | 'consent' | 'scan' | 'result' | 'privacy' | 'terms' | 'disclaimer' | 'stories' | 'history' | 'about'>('home');
+  const [lastStep, setLastStep] = useState<'home' | 'userGender' | 'name' | 'gender' | 'story' | 'consent' | 'scan' | 'result' | 'privacy' | 'terms' | 'disclaimer' | 'stories' | 'history' | 'about'>('home');
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [history, setHistory] = useState<any[]>([]);
@@ -916,8 +1055,8 @@ export default function App() {
               <div className="space-y-10">
                 <DynamicHeroText />
 
-                <p className="text-zinc-400 text-base md:text-xl font-bold max-w-xl mx-auto px-4 leading-relaxed">
-                  The most savage AI relationship analyst. No Login. No Drama. Just Roasts. 💀
+                <p className="text-zinc-400 text-base md:text-xl font-black max-w-xl mx-auto px-4 leading-relaxed uppercase tracking-widest">
+                  BUILT FOR PEOPLE WHO IGNORE RED FLAGS 🚩
                 </p>
               </div>
 
@@ -1526,7 +1665,9 @@ export default function App() {
               <button onClick={() => navigateToLegal('privacy')} className="hover:text-rose-600 transition-colors uppercase">Privacy Encryption</button>
               <button onClick={() => navigateToLegal('terms')} className="hover:text-rose-600 transition-colors uppercase">Terms of Registry</button>
               <button onClick={() => navigateToLegal('disclaimer')} className="hover:text-rose-600 transition-colors uppercase">Official Disclaimer</button>
+              <button onClick={() => { setLastStep(step); setStep('about'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-rose-600 transition-colors uppercase">About the Dept</button>
             </div>
+            <p className="text-zinc-800 text-[8px] font-black uppercase tracking-[0.4em] pt-4">Made with AI & creativity 🚀</p>
             <div className="flex items-center justify-center gap-6 pt-4 opacity-30">
                <div className="flex items-center gap-1.5 grayscale">
                   <ShieldCheck className="w-3 h-3" />
@@ -1601,6 +1742,15 @@ export default function App() {
           <Background />
           <LegalView 
             type={step as any} 
+            onBack={() => setStep(lastStep)} 
+          />
+        </div>
+      )}
+
+      {step === 'about' && (
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-black">
+          <Background />
+          <AboutView 
             onBack={() => setStep(lastStep)} 
           />
         </div>
