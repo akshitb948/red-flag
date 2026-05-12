@@ -12,7 +12,12 @@ export async function scanRelationship(
   userGender: string
 ): Promise<ScanResult> {
   try {
+<<<<<<< HEAD
     const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+=======
+    // @ts-ignore - process.env.GEMINI_API_KEY is defined in vite.config.ts for AI Studio
+    const apiKey = process.env.GEMINI_API_KEY || import.meta.env.VITE_GEMINI_API_KEY;
+>>>>>>> b2f9e94094829fc09f350a152e974deafff51f2b
 
     if (!apiKey) {
       throw new Error("MISSING_API_KEY");
